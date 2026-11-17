@@ -1,0 +1,216 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    Статистика | MailFlow
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .statistics-grid {
+        display: grid;
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(190px, 1fr)
+        );
+        gap: 16px;
+        margin: 24px 0 36px;
+    }
+
+    .statistics-card {
+        padding: 24px;
+        background: #f5f6f7;
+        border-radius: 12px;
+    }
+
+    .statistics-card strong {
+        display: block;
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+
+    .statistics-card span {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .statistics-section {
+        margin-top: 36px;
+    }
+
+    .statistics-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .statistics-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .statistics-table th,
+    .statistics-table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #e5e5e5;
+        vertical-align: middle;
+    }
+
+    .statistics-table th {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .statistics-success {
+        color: #23834a;
+        font-weight: 600;
+    }
+
+    .statistics-failed {
+        color: #c0392b;
+        font-weight: 600;
+    }
+
+    .statistics-empty {
+        padding: 24px 0;
+        color: #777;
+    }
+</style>
+
+<section>
+    <span class="page-label">
+        АНАЛИТИКА
+    </span>
+
+    <h1 class="page-title">
+        Статистика рассылок
+    </h1>
+
+    <p class="page-description">
+        Результаты отправки сообщений
+        и история ваших рассылок.
+    </p>
+</section>
+
+<section class="statistics-grid">
+
+    <div class="statistics-card">
+        <strong>{{ total_mailings }}</strong>
+        <span>Всего рассылок</span>
+    </div>
+
+    <div class="statistics-card">
+        <strong>{{ sent_messages }}</strong>
+        <span>Отправлено сообщений</span>
+    </div>
+
+    <div class="statistics-card">
+        <strong class="statistics-success">
+            {{ successful_attempts }}
+        </strong>
+        <span>Успешных попыток</span>
+    </div>
+
+    <div class="statistics-card">
+        <strong class="statistics-failed">
+            {{ failed_attempts }}
+        </strong>
+        <span>Неуспешных попыток</span>
+    </div>
+
+    <div class="statistics-card">
+        <strong>{{ total_attempts }}</strong>
+        <span>Всего попыток</span>
+    </div>
+
+</section>
+
+<section class="statistics-section">
+
+    <div class="info-panel">
+
+        <h2>Результаты по рассылкам</h2>
+
+        <div class="statistics-table-wrapper">
+            <table class="statistics-table">
+
+                <thead>
+                    <tr>
+                        <th>Рассылка</th>
+                        <th>Статус</th>
+                        <th>Успешно</th>
+                        <th>Неуспешно</th>
+                        <th>Всего попыток</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for mailing in mailings %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'mailing_detail' mailing.pk %}">
+                                    №{{ mailing.pk }}:
+                                    {{ mailing.message.subject }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ mailing.status }}
+
+                                {% if not mailing.is_enabled %}
+                                    (отключена)
+                                {% endif %}
+                            </td>
+
+                            <td class="statistics-success">
+                                {{ mailing.success_count }}
+                            </td>
+
+                            <td class="statistics-failed">
+                                {{ mailing.failed_count }}
+                            </td>
+
+                            <td>
+                                {{ mailing.success_count|add:mailing.failed_count }}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="statistics-empty">
+                                    У вас пока нет рассылок.
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="statistics-section">
+    <div class="actions">
+
+        <a
+            href="{% url 'mailing_list' %}"
+            class="button"
+        >
+            Мои рассылки
+        </a>
+
+        <a
+            href="{% url 'home' %}"
+            class="button button-secondary"
+        >
+            На главную
+        </a>
+
+    </div>
+</section>
+
+{% endblock %}

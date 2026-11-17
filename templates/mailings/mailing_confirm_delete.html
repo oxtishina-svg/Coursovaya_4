@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление рассылки | MailFlow{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">ПОДТВЕРЖДЕНИЕ</span>
+
+    <h1 class="page-title">
+        Удалить рассылку №{{ mailing.pk }}?
+    </h1>
+
+    <p class="page-description">
+        {{ mailing.message.subject }}
+    </p>
+</section>
+
+<section class="section-title">
+    <div class="form-card">
+
+        <p>
+            Рассылка и связанные с ней записи попыток
+            отправки будут удалены.
+        </p>
+
+        <p class="help-text">
+            Сообщение и получатели останутся в базе данных.
+            Это действие нельзя отменить.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="actions">
+                <button
+                    type="submit"
+                    class="button button-danger"
+                >
+                    Да, удалить рассылку
+                </button>
+
+                <a
+                    href="{% url 'mailing_detail' mailing.pk %}"
+                    class="button button-secondary"
+                >
+                    Отмена
+                </a>
+            </div>
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}

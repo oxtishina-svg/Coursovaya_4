@@ -1,0 +1,112 @@
+
+{% extends "base.html" %}
+
+{% block title %}Вход | MailFlow{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">АВТОРИЗАЦИЯ</span>
+
+    <h1 class="page-title">Вход в MailFlow</h1>
+
+    <p class="page-description">
+        Войдите в свою учётную запись
+        для управления получателями.
+    </p>
+</section>
+
+<section class="section-title">
+    <div class="form-card">
+
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="form-error" role="alert">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-field">
+                <label for="id_username">
+                    Имя пользователя
+                </label>
+
+                <input
+                    type="text"
+                    name="username"
+                    id="id_username"
+                    class="form-control"
+                    value="{{ form.username.value|default_if_none:'' }}"
+                    autocomplete="username"
+                    required
+                >
+
+                {% for error in form.username.errors %}
+                    <p class="form-error">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+
+            <div class="form-field">
+                <label for="id_password">
+                    Пароль
+                </label>
+
+                <input
+                    type="password"
+                    name="password"
+                    id="id_password"
+                    class="form-control"
+                    autocomplete="current-password"
+                    required
+                >
+
+                {% for error in form.password.errors %}
+                    <p class="form-error">
+                        {{ error }}
+                    </p>
+                {% endfor %}
+            </div>
+
+            <input
+                type="hidden"
+                name="next"
+                value="{{ next }}"
+            >
+
+            <div class="actions">
+                <button type="submit" class="button">
+                    Войти
+                </button>
+
+                <a
+                    href="{% url 'home' %}"
+                    class="button button-secondary"
+                >
+                    На главную
+                </a>
+            </div>
+        </form>
+
+        <p style="margin-top: 20px;">
+            <a href="{% url 'password_reset' %}">
+                Забыли пароль?
+            </a>
+        </p>
+
+        <p style="margin-top: 12px;">
+            Нет аккаунта?
+            <a href="{% url 'register' %}">
+                Зарегистрироваться
+            </a>
+        </p>
+
+    </div>
+</section>
+
+{% endblock %}

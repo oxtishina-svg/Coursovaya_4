@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Получатели | MailFlow{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <div>
+        <span class="page-label">КЛИЕНТСКАЯ БАЗА</span>
+        <h1 class="page-title">Получатели</h1>
+        <p class="page-description">
+            Управляйте адресами электронной почты
+            и контактными данными ваших клиентов.
+        </p>
+    </div>
+
+    <a href="{% url 'recipient_create' %}" class="button">
+        + Добавить получателя
+    </a>
+</section>
+
+<form method="get" class="search-form" role="search">
+    <input
+        type="search"
+        name="q"
+        class="form-control"
+        placeholder="Поиск по имени или email"
+        value="{{ query }}"
+        aria-label="Поиск получателей"
+    >
+
+    <button type="submit" class="button">
+        Найти
+    </button>
+
+    {% if query %}
+        <a href="{% url 'recipient_list' %}"
+           class="button button-secondary">
+            Сбросить
+        </a>
+    {% endif %}
+</form>
+
+<div class="table-card">
+    {% if recipients %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ф. И. О.</th>
+                        <th>Email</th>
+                        <th>Комментарий</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for recipient in recipients %}
+                        <tr>
+                            <td>{{ recipient.full_name }}</td>
+                            <td>{{ recipient.email }}</td>
+                            <td>
+                                {{ recipient.comment|default:"—"|truncatechars:80 }}
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <a
+                                        class="table-link"
+                                        href="{% url 'recipient_update' recipient.pk %}"
+                                    >
+                                        Изменить
+                                    </a>
+
+                                    <a
+                                        class="table-link"
+                                        href="{% url 'recipient_delete' recipient.pk %}"
+                                    >
+                                        Удалить
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            {% if query %}
+                По вашему запросу получатели не найдены.
+            {% else %}
+                Пока нет получателей.
+                Добавьте первого клиента.
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

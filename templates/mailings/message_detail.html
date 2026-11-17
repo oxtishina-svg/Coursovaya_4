@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}{{ message.subject }} | MailFlow{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">ПРОСМОТР СООБЩЕНИЯ</span>
+
+    <h1 class="page-title">
+        {{ message.subject }}
+    </h1>
+
+    <p class="page-description">
+        Содержание письма для будущей рассылки.
+    </p>
+</section>
+
+<section class="section-title">
+    <div class="form-card">
+        <h3>Текст сообщения</h3>
+
+        <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ message.body }}</div>
+
+        <div class="actions">
+            <a
+                href="{% url 'message_update' message.pk %}"
+                class="button"
+            >
+                Редактировать
+            </a>
+
+            <a
+                href="{% url 'message_delete' message.pk %}"
+                class="button button-danger"
+            >
+                Удалить
+            </a>
+
+            <a
+                href="{% url 'message_list' %}"
+                class="button button-secondary"
+            >
+                К списку
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

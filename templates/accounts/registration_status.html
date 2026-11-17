@@ -1,0 +1,46 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    {{ page_title }} | MailFlow
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">
+        РЕГИСТРАЦИЯ
+    </span>
+
+    <h1 class="page-title">
+        {{ page_title }}
+    </h1>
+
+    <p class="page-description">
+        {{ description }}
+    </p>
+</section>
+
+<section class="section-title">
+    <div class="info-panel">
+
+        <div class="actions">
+            <a
+                href="{% url 'login' %}"
+                class="button"
+            >
+                Перейти ко входу
+            </a>
+
+            <a
+                href="{% url 'home' %}"
+                class="button button-secondary"
+            >
+                На главную
+            </a>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

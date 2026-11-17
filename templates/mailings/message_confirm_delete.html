@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление сообщения | MailFlow{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">ПОДТВЕРЖДЕНИЕ</span>
+
+    <h1 class="page-title">
+        Удалить сообщение?
+    </h1>
+
+    <p class="page-description">
+        {{ message.subject }}
+    </p>
+</section>
+
+<section class="section-title">
+    <div class="form-card">
+
+        {% if is_used %}
+            <h3>Удаление невозможно</h3>
+
+            <p>
+                Это сообщение используется в одной или нескольких
+                рассылках. Сначала удалите связанные рассылки
+                или выберите для них другое сообщение.
+            </p>
+
+            <a
+                href="{% url 'message_list' %}"
+                class="button button-secondary"
+            >
+                Вернуться к сообщениям
+            </a>
+
+        {% else %}
+            <h3>Подтвердите удаление</h3>
+
+            <p>
+                Сообщение будет удалено без возможности восстановления.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="actions">
+                    <button
+                        type="submit"
+                        class="button button-danger"
+                    >
+                        Да, удалить
+                    </button>
+
+                    <a
+                        href="{% url 'message_list' %}"
+                        class="button button-secondary"
+                    >
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,82 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    Регистрация | MailFlow
+{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">
+        НОВЫЙ АККАУНТ
+    </span>
+
+    <h1 class="page-title">
+        Регистрация
+    </h1>
+
+    <p class="page-description">
+        Создайте аккаунт для управления рассылками.
+    </p>
+</section>
+
+<section class="section-title">
+    <div class="info-panel">
+
+        <h3>Данные пользователя</h3>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div style="color: #b91c1c; margin-bottom: 16px;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div style="margin-bottom: 20px;">
+
+                    <label for="{{ field.id_for_label }}">
+                        <strong>{{ field.label }}</strong>
+                    </label>
+
+                    <div style="margin-top: 8px;">
+                        {{ field }}
+                    </div>
+
+                    {% if field.help_text %}
+                        <div style="font-size: 13px; color: #777; margin-top: 6px;">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <p style="color: #b91c1c; margin-top: 6px;">
+                            {{ error }}
+                        </p>
+                    {% endfor %}
+
+                </div>
+            {% endfor %}
+
+            <div class="actions">
+                <button type="submit" class="button">
+                    Зарегистрироваться
+                </button>
+
+                <a
+                    href="{% url 'login' %}"
+                    class="button button-secondary"
+                >
+                    Уже есть аккаунт
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}

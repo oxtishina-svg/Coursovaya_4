@@ -1,0 +1,388 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    Панель менеджера | MailFlow
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .manager-stats {
+        display: grid;
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(180px, 1fr)
+        );
+        gap: 16px;
+        margin: 24px 0;
+    }
+
+    .manager-stat {
+        padding: 24px;
+        background: #f5f6f7;
+        border-radius: 12px;
+    }
+
+    .manager-stat strong {
+        display: block;
+        font-size: 30px;
+        margin-bottom: 8px;
+    }
+
+    .manager-section {
+        margin-top: 36px;
+    }
+
+    .manager-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .manager-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .manager-table th,
+    .manager-table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #e5e5e5;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+    }
+
+    .manager-table th {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .manager-table td {
+        font-size: 14px;
+    }
+
+    .manager-action {
+        display: inline-block;
+        padding: 9px 14px;
+        border: 1px solid #c0392b;
+        border-radius: 8px;
+        background: transparent;
+        color: #c0392b;
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .manager-action:hover {
+        background: #fff0f0;
+    }
+
+    .manager-status-active {
+        color: #23834a;
+        font-weight: 600;
+    }
+
+    .manager-status-disabled {
+        color: #c0392b;
+        font-weight: 600;
+    }
+
+    .manager-alert {
+        padding: 16px 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        background: #f5f6f7;
+        border: 1px solid #ddd;
+    }
+
+    .manager-alert.success {
+        background: #edf8f0;
+        border-color: #b7dec2;
+        color: #23633a;
+    }
+
+    .manager-alert.error {
+        background: #fff0f0;
+        border-color: #efb8b8;
+        color: #9b2929;
+    }
+
+    .manager-alert.info {
+        background: #f0f5ff;
+        border-color: #c5d6f5;
+        color: #315b91;
+    }
+
+    .manager-muted {
+        color: #888;
+        font-size: 13px;
+    }
+</style>
+
+<section>
+    <span class="page-label">
+        АДМИНИСТРИРОВАНИЕ
+    </span>
+
+    <h1 class="page-title">
+        Панель менеджера
+    </h1>
+
+    <p class="page-description">
+        Управление пользователями и рассылками сервиса.
+    </p>
+</section>
+
+{% if messages %}
+    <section>
+        {% for message in messages %}
+            <div
+                class="manager-alert {{ message.tags }}"
+                role="alert"
+            >
+                {{ message }}
+            </div>
+        {% endfor %}
+    </section>
+{% endif %}
+
+<section class="manager-stats">
+
+    <div class="manager-stat">
+        <strong>{{ total_users }}</strong>
+        Пользователей
+    </div>
+
+    <div class="manager-stat">
+        <strong>{{ total_recipients }}</strong>
+        Получателей
+    </div>
+
+    <div class="manager-stat">
+        <strong>{{ total_mailings }}</strong>
+        Рассылок
+    </div>
+
+</section>
+
+<section class="manager-section">
+    <div class="info-panel">
+
+        <h2>Пользователи</h2>
+
+        <div class="manager-table-wrapper">
+            <table class="manager-table">
+
+                <thead>
+                    <tr>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Статус</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for user_item in users %}
+                        <tr>
+                            <td>
+                                {{ user_item.username }}
+                            </td>
+
+                            <td>
+                                {{ user_item.email }}
+                            </td>
+
+                            <td>
+                                {% if user_item.is_active %}
+                                    <span class="manager-status-active">
+                                        Активен
+                                    </span>
+                                {% else %}
+                                    <span class="manager-status-disabled">
+                                        Заблокирован
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if user_item.pk == request.user.pk %}
+                                    <span class="manager-muted">
+                                        Ваш аккаунт
+                                    </span>
+
+                                {% elif user_item.is_superuser %}
+                                    <span class="manager-muted">
+                                        Суперпользователь
+                                    </span>
+
+                                {% elif user_item.is_active %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'manager_block_user' user_item.pk %}"
+                                        onsubmit="return confirm('Заблокировать пользователя?');"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="manager-action"
+                                        >
+                                            Заблокировать
+                                        </button>
+                                    </form>
+
+                                {% else %}
+                                    <span class="manager-muted">
+                                        Уже заблокирован
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">
+                                Пользователей пока нет.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</section>
+
+<section class="manager-section">
+    <div class="info-panel">
+
+        <h2>Получатели рассылок</h2>
+
+        <div class="manager-table-wrapper">
+            <table class="manager-table">
+
+                <thead>
+                    <tr>
+                        <th>Ф. И. О.</th>
+                        <th>Email</th>
+                        <th>Владелец</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for recipient in recipients %}
+                        <tr>
+                            <td>{{ recipient.full_name }}</td>
+                            <td>{{ recipient.email }}</td>
+                            <td>{{ recipient.owner.username }}</td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">
+                                Получателей пока нет.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</section>
+
+<section class="manager-section">
+    <div class="info-panel">
+
+        <h2>Все рассылки</h2>
+
+        <div class="manager-table-wrapper">
+            <table class="manager-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Сообщение</th>
+                        <th>Владелец</th>
+                        <th>Статус</th>
+                        <th>Включена</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for mailing in mailings %}
+                        <tr>
+                            <td>
+                                №{{ mailing.pk }}
+                            </td>
+
+                            <td>
+                                {{ mailing.message.subject }}
+                            </td>
+
+                            <td>
+                                {{ mailing.owner.username }}
+                            </td>
+
+                            <td>
+                                {{ mailing.status }}
+                            </td>
+
+                            <td>
+                                {% if mailing.is_enabled %}
+                                    <span class="manager-status-active">
+                                        Да
+                                    </span>
+                                {% else %}
+                                    <span class="manager-status-disabled">
+                                        Нет
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if mailing.is_enabled %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'manager_disable_mailing' mailing.pk %}"
+                                        onsubmit="return confirm('Отключить эту рассылку?');"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="manager-action"
+                                        >
+                                            Отключить
+                                        </button>
+                                    </form>
+
+                                {% else %}
+                                    <span class="manager-muted">
+                                        Отключена
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                Рассылок пока нет.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

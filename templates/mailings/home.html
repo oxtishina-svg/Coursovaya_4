@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Главная | MailFlow{% endblock %}
+
+{% block content %}
+
+<section>
+    <span class="page-label">ПАНЕЛЬ УПРАВЛЕНИЯ</span>
+
+    <h1 class="page-title">
+        Управление рассылками
+    </h1>
+
+    <p class="page-description">
+        Создавайте сообщения, управляйте получателями
+        и отслеживайте эффективность email-рассылок
+        в одном месте.
+    </p>
+</section>
+
+
+<section>
+    <h2 class="section-title">Общая статистика</h2>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">✉</div>
+
+            <p class="stat-number">
+                {{ total_mailings }}
+            </p>
+
+            <p class="stat-label">
+                Всего рассылок
+            </p>
+        </div>
+
+
+        <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">↗</div>
+
+            <p class="stat-number">
+                {{ active_mailings }}
+            </p>
+
+            <p class="stat-label">
+                Активных рассылок
+            </p>
+        </div>
+
+
+        <div class="stat-card">
+            <div class="stat-icon" aria-hidden="true">♙</div>
+
+            <p class="stat-number">
+                {{ total_recipients }}
+            </p>
+
+            <p class="stat-label">
+                Уникальных получателей
+            </p>
+        </div>
+
+    </div>
+</section>
+
+
+<section>
+    <h2 class="section-title">Начало работы</h2>
+
+    <div class="info-panel">
+        <h3>Ваш сервис готов к настройке</h3>
+
+        <p>
+            Здесь будут размещены инструменты управления
+            клиентами, сообщениями и рассылками.
+            Все данные хранятся в PostgreSQL.
+        </p>
+
+        {% if request.user.is_authenticated and request.user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="button">
+                Открыть админку
+            </a>
+        {% else %}
+            <p>
+                Управление данными будет доступно после
+                настройки личного кабинета.
+            </p>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

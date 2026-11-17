@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Сообщения | MailFlow{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <div>
+        <span class="page-label">EMAIL-СООБЩЕНИЯ</span>
+        <h1 class="page-title">Сообщения</h1>
+        <p class="page-description">
+            Создавайте и редактируйте письма для будущих рассылок.
+        </p>
+    </div>
+
+    <a href="{% url 'message_create' %}" class="button">
+        + Создать сообщение
+    </a>
+</section>
+
+<form method="get" class="search-form" role="search">
+    <input
+        type="search"
+        name="q"
+        class="form-control"
+        placeholder="Поиск по теме или тексту"
+        value="{{ query }}"
+        aria-label="Поиск сообщений"
+    >
+
+    <button type="submit" class="button">
+        Найти
+    </button>
+
+    {% if query %}
+        <a href="{% url 'message_list' %}"
+           class="button button-secondary">
+            Сбросить
+        </a>
+    {% endif %}
+</form>
+
+<div class="table-card">
+    {% if messages_list %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Тема</th>
+                        <th>Содержание</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for message in messages_list %}
+                        <tr>
+                            <td>
+                                <a
+                                    href="{% url 'message_detail' message.pk %}"
+                                    class="table-link"
+                                >
+                                    {{ message.subject }}
+                                </a>
+                            </td>
+
+                            <td>
+                                {{ message.body|truncatechars:100 }}
+                            </td>
+
+                            <td>
+                                <div class="table-actions">
+                                    <a
+                                        href="{% url 'message_detail' message.pk %}"
+                                        class="table-link"
+                                    >
+                                        Открыть
+                                    </a>
+
+                                    <a
+                                        href="{% url 'message_update' message.pk %}"
+                                        class="table-link"
+                                    >
+                                        Изменить
+                                    </a>
+
+                                    <a
+                                        href="{% url 'message_delete' message.pk %}"
+                                        class="table-link"
+                                    >
+                                        Удалить
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            {% if query %}
+                Сообщения по вашему запросу не найдены.
+            {% else %}
+                Пока нет сообщений. Создайте первое письмо.
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

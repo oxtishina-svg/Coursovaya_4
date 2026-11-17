@@ -1,0 +1,284 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+    Рассылка №{{ mailing.pk }} | MailFlow
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .mailing-alert {
+        padding: 16px 20px;
+        margin: 20px 0;
+        border-radius: 10px;
+        border: 1px solid #d9d9d9;
+        background: #f7f7f7;
+        color: #333;
+    }
+
+    .mailing-alert.success {
+        background: #edf8f0;
+        border-color: #b7dec2;
+        color: #23633a;
+    }
+
+    .mailing-alert.error {
+        background: #fff0f0;
+        border-color: #efb8b8;
+        color: #9b2929;
+    }
+
+    .mailing-send-form {
+        margin: 24px 0 12px;
+    }
+
+    .mailing-send-form button {
+        cursor: pointer;
+        font: inherit;
+    }
+
+    .mailing-hint {
+        font-size: 14px;
+        color: #777;
+        line-height: 1.6;
+        margin-top: 12px;
+    }
+
+    .mailing-history {
+        margin-top: 32px;
+    }
+
+    .mailing-history-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .mailing-history-table th,
+    .mailing-history-table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #e5e5e5;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+    }
+
+    .mailing-history-table th {
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+    }
+
+    .mailing-history-table td {
+        font-size: 14px;
+    }
+
+    .attempt-success {
+        color: #23834a;
+        font-weight: 600;
+    }
+
+    .attempt-failed {
+        color: #c0392b;
+        font-weight: 600;
+    }
+</style>
+
+<section>
+    <span class="page-label">
+        ПОДРОБНОСТИ РАССЫЛКИ
+    </span>
+
+    <h1 class="page-title">
+        Рассылка №{{ mailing.pk }}
+    </h1>
+
+    <p class="page-description">
+        Просмотр параметров и управление отправкой рассылки.
+    </p>
+</section>
+
+{% if messages %}
+    <section>
+        {% for message in messages %}
+            <div
+                class="mailing-alert {% if message.tags %}{{ message.tags }}{% endif %}"
+                role="alert"
+            >
+                {{ message }}
+            </div>
+        {% endfor %}
+    </section>
+{% endif %}
+
+<section class="section-title">
+    <div class="info-panel">
+
+        <h3>Сообщение</h3>
+
+        <p>
+            <strong>Тема:</strong>
+            {{ mailing.message.subject }}
+        </p>
+
+        <p style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ mailing.message.body }}</p>
+
+        <h3>Период отправки</h3>
+
+        <p>
+            <strong>Начало:</strong>
+            {{ mailing.start_time|date:"d.m.Y H:i" }}
+        </p>
+
+        <p>
+            <strong>Окончание:</strong>
+            {{ mailing.end_time|date:"d.m.Y H:i" }}
+        </p>
+
+        <p>
+            <strong>Статус по времени:</strong>
+            {{ mailing.status }}
+        </p>
+
+        <p>
+            <strong>Включена:</strong>
+            {% if mailing.is_enabled %}
+                Да
+            {% else %}
+                Нет
+            {% endif %}
+        </p>
+
+        <h3>Получатели</h3>
+
+        <ul>
+            {% for recipient in mailing.recipients.all %}
+                <li>
+                    {{ recipient.full_name }}
+                    ({{ recipient.email }})
+                </li>
+            {% empty %}
+                <li>Получатели не выбраны.</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Запуск рассылки</h3>
+
+        <p>
+            Для ручной отправки нажмите кнопку ниже.
+            Письмо будет отправлено каждому выбранному получателю.
+        </p>
+
+        <form
+            method="post"
+            action="{% url 'mailing_send' mailing.pk %}"
+            class="mailing-send-form"
+        >
+            {% csrf_token %}
+
+            <button type="submit" class="button">
+                Запустить рассылку
+            </button>
+        </form>
+
+        <p class="mailing-hint">
+            Отправка возможна только в установленный период,
+            если рассылка включена. При нарушении условий
+            система покажет сообщение об ошибке.
+        </p>
+
+        <div class="actions">
+            <a
+                href="{% url 'mailing_update' mailing.pk %}"
+                class="button"
+            >
+                Редактировать
+            </a>
+
+            <a
+                href="{% url 'mailing_delete' mailing.pk %}"
+                class="button button-danger"
+            >
+                Удалить
+            </a>
+
+            <a
+                href="{% url 'mailing_list' %}"
+                class="button button-secondary"
+            >
+                К списку
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<section class="section-title mailing-history">
+
+    <span class="page-label">
+        ИСТОРИЯ ОТПРАВОК
+    </span>
+
+    <h2>Попытки отправки</h2>
+
+    <p class="page-description">
+        Результаты отправки сообщений получателям этой рассылки.
+    </p>
+
+    <div class="info-panel">
+
+        {% if mailing.attempts.exists %}
+
+            <div style="overflow-x: auto;">
+                <table class="mailing-history-table">
+
+                    <thead>
+                        <tr>
+                            <th>Дата и время</th>
+                            <th>Статус</th>
+                            <th>Ответ сервера</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for attempt in mailing.attempts.all %}
+                            <tr>
+                                <td>
+                                    {{ attempt.attempt_time|date:"d.m.Y H:i:s" }}
+                                </td>
+
+                                <td>
+                                    {% if attempt.status == "success" %}
+                                        <span class="attempt-success">
+                                            {{ attempt.get_status_display }}
+                                        </span>
+                                    {% else %}
+                                        <span class="attempt-failed">
+                                            {{ attempt.get_status_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ attempt.server_response|default:"Нет ответа" }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <p>
+                Попыток отправки пока нет.
+                История появится после первого запуска рассылки.
+            </p>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}

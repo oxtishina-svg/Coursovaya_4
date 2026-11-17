@@ -1,0 +1,80 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}MailFlow{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'mailings/css/site.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <header class="header">
+        <div class="container header-inner">
+
+            <a href="{% url 'home' %}" class="logo">
+                Mail<span>Flow</span>
+            </a>
+
+            <nav class="navigation" aria-label="Основная навигация">
+                <a href="{% url 'home' %}"
+                   class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    Главная
+                </a>
+
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'recipient_list' %}"
+                       class="{% if 'recipient' in request.resolver_match.url_name %}active{% endif %}">
+                        Получатели
+                    </a>
+
+                    <a href="{% url 'message_list' %}"
+                       class="{% if 'message' in request.resolver_match.url_name %}active{% endif %}">
+                        Сообщения
+                    </a>
+
+                    <a href="{% url 'mailing_list' %}"
+                       class="{% if 'mailing' in request.resolver_match.url_name %}active{% endif %}">
+                        Рассылки
+                    </a>
+
+                    {% if request.user.is_staff %}
+                        <a href="{% url 'admin:index' %}">
+                            Админка
+                        </a>
+                    {% endif %}
+
+                    <form method="post"
+                          action="{% url 'logout' %}"
+                          class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-button">
+                            Выйти
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Войти</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <span>MailFlow © 2026</span>
+            <span>Сервис управления email-рассылками</span>
+        </div>
+    </footer>
+</body>
+</html>
